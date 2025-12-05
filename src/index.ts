@@ -1,6 +1,6 @@
 /**
- * Azure Sentinel Solutions Analyzer MCP Server
- * Analyzes Azure Sentinel solutions and maps data connectors to Log Analytics tables
+ * Microsoft Sentinel Solutions Analyzer MCP Server
+ * Analyzes Microsoft Sentinel solutions and maps data connectors to Log Analytics tables
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -87,7 +87,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
 
-  console.error('Azure Sentinel Solutions Analyzer MCP Server started');
+  console.error('Microsoft Sentinel Solutions Analyzer MCP Server started');
   console.error('Available tools:', allTools.map((t) => t.name).join(', '));
 }
 

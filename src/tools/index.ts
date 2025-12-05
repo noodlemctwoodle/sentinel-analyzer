@@ -1,5 +1,5 @@
 /**
- * MCP Tools implementation for Azure Sentinel Solutions Analyzer
+ * MCP Tools implementation for Microsoft Sentinel Solutions Analyzer
  */
 
 import { z } from 'zod';
@@ -16,6 +16,7 @@ import {
 } from '../types/index.js';
 import { extractTablesFromConnector } from '../analyzer/tableExtractor.js';
 import { parseJsonTolerant } from '../analyzer/jsonParser.js';
+import { loadPreBuiltIndex, isIndexStale } from '../utils/indexLoader.js';
 
 // Global cache for analysis results
 let cachedAnalysisResult: AnalysisResult | null = null;
@@ -29,7 +30,7 @@ const repoManager = new RepositoryManager();
 export const analyzeSolutionsTool = {
   name: 'analyze_solutions',
   description:
-    'Run full analysis on all Azure Sentinel solutions, extracting connector-table mappings',
+    'Run full analysis on all Microsoft Sentinel solutions, extracting connector-table mappings',
   inputSchema: z.object({
     force_refresh: z
       .boolean()
@@ -40,35 +41,73 @@ export const analyzeSolutionsTool = {
       .optional()
       .default('json')
       .describe('Output format for results'),
+    repository_owner: z
+      .string()
+      .optional()
+      .describe('GitHub repository owner (default: Azure)'),
+    repository_name: z
+      .string()
+      .optional()
+      .describe('GitHub repository name (default: Azure-Sentinel)'),
+    repository_branch: z
+      .string()
+      .optional()
+      .describe('Repository branch (default: master)'),
+    solutions_path: z
+      .string()
+      .optional()
+      .describe('Path to solutions directory (default: Solutions)'),
   }),
   execute: async (args: {
     force_refresh?: boolean;
     output_format?: 'json' | 'csv' | 'summary';
+    repository_owner?: string;
+    repository_name?: string;
+    repository_branch?: string;
+    solutions_path?: string;
   }): Promise<any> => {
-    // Ensure repository is accessible
-    await repoManager.ensureRepository(args.force_refresh);
+    // Build repository config from args
+    const repoConfig = {
+      owner: args.repository_owner,
+      name: args.repository_name,
+      branch: args.repository_branch,
+      solutionsPath: args.solutions_path,
+    };
 
-    const currentCommit = await repoManager.getCurrentCommit();
+    // Try to use pre-built index first (unless force_refresh or custom repo)
+    const isDefaultRepo =
+      !args.repository_owner && !args.repository_name && !args.repository_branch;
+    if (!args.force_refresh && !cachedAnalysisResult && isDefaultRepo) {
+      const preBuiltIndex = loadPreBuiltIndex();
+      if (preBuiltIndex) {
+        // Check if index is stale (>7 days old)
+        if (isIndexStale(preBuiltIndex)) {
+          console.error(
+            '⚠️  Pre-built index is stale (>7 days). Use force_refresh: true for latest data.'
+          );
+        }
 
-    // Use cached results if available and commit hasn't changed
-    if (
-      !args.force_refresh &&
-      cachedAnalysisResult &&
-      cacheCommitHash === currentCommit
-    ) {
-      return formatAnalysisResult(cachedAnalysisResult, args.output_format || 'json');
+        cachedAnalysisResult = preBuiltIndex;
+        return formatAnalysisResult(preBuiltIndex, args.output_format || 'json');
+      }
     }
 
-    // Run analysis using GitHub API
-    const github = repoManager.getGitHubClient();
+    // Run fresh analysis using GitHub API
+    console.error('🔍 Running fresh analysis from GitHub...');
+    const github = new (await import('../repository/githubClient.js')).GitHubClient(
+      repoConfig
+    );
     const analyzer = new SolutionAnalyzer(github);
 
     const result = await analyzer.analyze();
 
-    // Update cache
-    cachedAnalysisResult = result;
-    cacheCommitHash = currentCommit;
-    cachedAnalysisResult.metadata.repositoryCommit = currentCommit;
+    // Update cache (only for default repo)
+    if (isDefaultRepo) {
+      const currentCommit = await github.getLatestCommitSha();
+      cachedAnalysisResult = result;
+      cacheCommitHash = currentCommit;
+      cachedAnalysisResult.metadata.repositoryCommit = currentCommit;
+    }
 
     return formatAnalysisResult(result, args.output_format || 'json');
   },
@@ -392,6 +431,22 @@ export const toolSchemas: Record<string, any> = {
         enum: ['json', 'csv', 'summary'],
         default: 'json',
         description: 'Output format for results',
+      },
+      repository_owner: {
+        type: 'string',
+        description: 'GitHub repository owner (default: Azure)',
+      },
+      repository_name: {
+        type: 'string',
+        description: 'GitHub repository name (default: Azure-Sentinel)',
+      },
+      repository_branch: {
+        type: 'string',
+        description: 'Repository branch (default: master)',
+      },
+      solutions_path: {
+        type: 'string',
+        description: 'Path to solutions directory (default: Solutions)',
       },
     },
   },

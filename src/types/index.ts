@@ -1,5 +1,5 @@
 /**
- * Type definitions for Azure Sentinel Solutions Analyzer
+ * Type definitions for Microsoft Sentinel Solutions Analyzer
  */
 
 export interface SolutionMetadata {
@@ -76,6 +76,8 @@ export interface AnalysisResult {
     totalTables: number;
     analysisDate: string;
     repositoryCommit?: string;
+    preBuiltAt?: string;
+    version?: string;
   };
 }
 

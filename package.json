@@ -1,24 +1,26 @@
 {
-  "name": "sentinel-analyzer-mcp",
+  "name": "sentinel-solutions-mcp",
   "version": "1.0.2",
-  "description": "MCP server for analyzing Azure Sentinel solutions and mapping data connectors to Log Analytics tables",
+  "description": "MCP server for analyzing Microsoft Sentinel solutions from any GitHub repository and mapping data connectors to Log Analytics tables",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "sentinel-analyzer-mcp": "dist/index.js"
+    "sentinel-solutions-mcp": "dist/index.js"
   },
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "npm run build:index && tsup",
+    "build:index": "tsx scripts/build-index.ts",
     "dev": "tsx src/index.ts",
     "watch": "tsup --watch",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
     "mcp",
+    "microsoft-sentinel",
     "azure-sentinel",
     "security",
     "log-analytics",
@@ -28,12 +30,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/noodlemctwoodle/sentinel-analyzer.git"
+    "url": "https://github.com/noodlemctwoodle/sentinel-solutions-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/noodlemctwoodle/sentinel-analyzer/issues"
+    "url": "https://github.com/noodlemctwoodle/sentinel-solutions-mcp/issues"
   },
-  "homepage": "https://github.com/noodlemctwoodle/sentinel-analyzer#readme",
+  "homepage": "https://github.com/noodlemctwoodle/sentinel-solutions-mcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.24.3",
     "csv-writer": "^1.6.0",

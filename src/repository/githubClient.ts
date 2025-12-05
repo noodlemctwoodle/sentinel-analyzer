@@ -1,13 +1,13 @@
 /**
- * GitHub API Client for accessing Azure-Sentinel repository remotely
+ * GitHub API Client for accessing Microsoft Sentinel repositories remotely
  * No cloning required - uses GitHub API and raw file URLs
+ * Supports any GitHub repository containing Sentinel solutions
  */
+
+import { RepositoryConfig, DEFAULT_REPOSITORY_CONFIG } from '../types/repository.js';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com';
-const REPO_OWNER = 'Azure';
-const REPO_NAME = 'Azure-Sentinel';
-const REPO_BRANCH = 'master';
 
 export interface GitHubTreeItem {
   path: string;
@@ -27,12 +27,27 @@ export interface GitHubTree {
 
 export class GitHubClient {
   private cache: Map<string, any> = new Map();
+  private config: RepositoryConfig;
+
+  constructor(config?: Partial<RepositoryConfig>) {
+    this.config = {
+      ...DEFAULT_REPOSITORY_CONFIG,
+      ...config,
+    };
+  }
+
+  /**
+   * Get the repository configuration
+   */
+  getConfig(): RepositoryConfig {
+    return { ...this.config };
+  }
 
   /**
    * Get the latest commit SHA for the repository
    */
   async getLatestCommitSha(): Promise<string> {
-    const url = `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/commits/${REPO_BRANCH}`;
+    const url = `${GITHUB_API_BASE}/repos/${this.config.owner}/${this.config.name}/commits/${this.config.branch}`;
 
     try {
       const response = await fetch(url);
@@ -40,7 +55,7 @@ export class GitHubClient {
         throw new Error(`Failed to fetch commit: ${response.statusText}`);
       }
 
-      const data = await response.json() as { sha: string };
+      const data = (await response.json()) as { sha: string };
       return data.sha;
     } catch (error) {
       console.error('Warning: Failed to get latest commit SHA:', error);
@@ -57,7 +72,7 @@ export class GitHubClient {
       return this.cache.get(cacheKey);
     }
 
-    const url = `${GITHUB_RAW_BASE}/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${path}`;
+    const url = `${GITHUB_RAW_BASE}/${this.config.owner}/${this.config.name}/${this.config.branch}/${path}`;
 
     try {
       const response = await fetch(url);
@@ -82,7 +97,7 @@ export class GitHubClient {
       return this.cache.get(cacheKey);
     }
 
-    const url = `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${REPO_BRANCH}`;
+    const url = `${GITHUB_API_BASE}/repos/${this.config.owner}/${this.config.name}/contents/${path}?ref=${this.config.branch}`;
 
     try {
       const response = await fetch(url);
@@ -90,7 +105,7 @@ export class GitHubClient {
         throw new Error(`Failed to list ${path}: ${response.statusText}`);
       }
 
-      const items = await response.json() as GitHubTreeItem[];
+      const items = (await response.json()) as GitHubTreeItem[];
       this.cache.set(cacheKey, items);
       return items;
     } catch (error) {
@@ -105,13 +120,13 @@ export class GitHubClient {
     // If no treeSha provided, get it from the latest commit
     if (!treeSha) {
       const commitSha = await this.getLatestCommitSha();
-      const commitUrl = `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${commitSha}`;
+      const commitUrl = `${GITHUB_API_BASE}/repos/${this.config.owner}/${this.config.name}/git/commits/${commitSha}`;
       const commitResponse = await fetch(commitUrl);
-      const commitData = await commitResponse.json() as { tree: { sha: string } };
+      const commitData = (await commitResponse.json()) as { tree: { sha: string } };
       treeSha = commitData.tree.sha;
     }
 
-    const url = `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/git/trees/${treeSha}?recursive=1`;
+    const url = `${GITHUB_API_BASE}/repos/${this.config.owner}/${this.config.name}/git/trees/${treeSha}?recursive=1`;
 
     try {
       const response = await fetch(url);
@@ -119,7 +134,7 @@ export class GitHubClient {
         throw new Error(`Failed to fetch tree: ${response.statusText}`);
       }
 
-      return await response.json() as GitHubTree;
+      return (await response.json()) as GitHubTree;
     } catch (error) {
       throw new Error(`Error fetching tree: ${error}`);
     }
@@ -143,13 +158,13 @@ export class GitHubClient {
    * Generate GitHub web URL for a path
    */
   getGitHubUrl(path: string): string {
-    return `https://github.com/${REPO_OWNER}/${REPO_NAME}/tree/${REPO_BRANCH}/${path}`;
+    return `https://github.com/${this.config.owner}/${this.config.name}/tree/${this.config.branch}/${path}`;
   }
 
   /**
    * Generate GitHub blob URL for a file
    */
   getGitHubBlobUrl(path: string): string {
-    return `https://github.com/${REPO_OWNER}/${REPO_NAME}/blob/${REPO_BRANCH}/${path}`;
+    return `https://github.com/${this.config.owner}/${this.config.name}/blob/${this.config.branch}/${path}`;
   }
 }

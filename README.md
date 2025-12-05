@@ -1,13 +1,15 @@
-# Azure Sentinel Solutions Analyzer MCP Server
+# Microsoft Sentinel Solutions Analyzer MCP Server
 
-An MCP (Model Context Protocol) server that analyzes Azure Sentinel solutions and maps data connectors to Log Analytics tables. This is a TypeScript rewrite of the Azure Sentinel Solutions Analyzer Python tool, exposing its functionality through the MCP protocol for use with AI agents like Claude.
+An MCP (Model Context Protocol) server that analyzes Microsoft Sentinel solutions and maps data connectors to Log Analytics tables. This is a TypeScript rewrite of the Microsoft Sentinel Solutions Analyzer Python tool, exposing its functionality through the MCP protocol for use with AI agents like Claude.
 
 ## Features
 
+- **Multi-Repository Support**: Query any GitHub repository containing Sentinel solutions, not just the official Azure repo
+- **Pre-built Index**: Ships with pre-built analysis for instant startup (< 1 second first query)
 - **Direct GitHub Access**: Uses GitHub API - no cloning or downloads required!
 - **Zero Setup**: Works immediately, no git repository cloning or storage needed
 - **Always Current**: Accesses latest data directly from GitHub
-- **Comprehensive Analysis**: Analyzes all solutions in the Azure Sentinel Content Hub
+- **Comprehensive Analysis**: Analyzes all solutions in the Microsoft Sentinel Content Hub
 - **6 Detection Methods**: Implements all table detection strategies from the original Python tool:
   - graphQueries.{index}.baseQuery
   - sampleQueries.{index}.query
@@ -25,13 +27,13 @@ An MCP (Model Context Protocol) server that analyzes Azure Sentinel solutions an
 ### Via npx (Recommended)
 
 ```bash
-npx sentinel-analyzer-mcp
+npx sentinel-solutions-mcp
 ```
 
 ### Global Installation
 
 ```bash
-npm install -g sentinel-analyzer-mcp
+npm install -g sentinel-solutions-mcp
 ```
 
 ### From Source
@@ -52,9 +54,9 @@ Add to your `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "sentinel-analyzer": {
+    "sentinel-solutions": {
       "command": "npx",
-      "args": ["sentinel-analyzer-mcp"]
+      "args": ["sentinel-solutions-mcp"]
     }
   }
 }
@@ -65,24 +67,53 @@ Add to your `claude_desktop_config.json`:
 The server communicates via stdin/stdout using the MCP protocol. Configure your MCP client to run:
 
 ```bash
-npx sentinel-analyzer-mcp
+npx sentinel-solutions-mcp
+```
+
+### Environment Variables
+
+Configure repository access via environment variables:
+
+```bash
+export SENTINEL_REPO_OWNER=Azure                    # Default: Azure
+export SENTINEL_REPO_NAME=Azure-Sentinel            # Default: Azure-Sentinel
+export SENTINEL_REPO_BRANCH=master                  # Default: master
+export SENTINEL_SOLUTIONS_PATH=Solutions            # Default: Solutions
+export GITHUB_TOKEN=your_token_here                 # Optional: for higher API limits
+
+npx sentinel-solutions-mcp
 ```
 
 ## Available Tools
 
 ### 1. analyze_solutions
 
-Run full analysis on all Azure Sentinel solutions.
+Run full analysis on all Microsoft Sentinel solutions from any GitHub repository.
 
 **Parameters:**
 - `force_refresh` (boolean, optional): Force re-clone repository
 - `output_format` (enum, optional): 'json' | 'csv' | 'summary' (default: 'json')
+- `repository_owner` (string, optional): GitHub repository owner (default: 'Azure')
+- `repository_name` (string, optional): Repository name (default: 'Azure-Sentinel')
+- `repository_branch` (string, optional): Branch to analyze (default: 'master')
+- `solutions_path` (string, optional): Path to solutions directory (default: 'Solutions')
 
-**Example:**
+**Example (Default Repository):**
 ```json
 {
   "force_refresh": false,
   "output_format": "summary"
+}
+```
+
+**Example (Custom Repository):**
+```json
+{
+  "repository_owner": "MyOrg",
+  "repository_name": "CustomSentinelSolutions",
+  "repository_branch": "main",
+  "solutions_path": "MySolutions",
+  "output_format": "json"
 }
 ```
 
@@ -232,10 +263,15 @@ src/
 
 ## Performance
 
-- **Caching**: Analysis results and file contents cached by repository commit hash
+- **Pre-built Index**: Instant first query (< 1 second) using pre-built analysis shipped with package
+- **Smart Caching**: Analysis results and file contents cached by repository commit hash
 - **Parallel Requests**: Multiple files fetched concurrently
 - **No Downloads**: Zero initial download time - starts instantly
-- **Typical Performance**: 100+ solutions analyzed on first run, instant on subsequent runs
+- **Auto-refresh**: Weekly automated index updates via GitHub Actions
+- **Typical Performance**:
+  - Default repo (with pre-built index): < 1 second
+  - Custom repo (fresh analysis): 100+ solutions analyzed in ~30-60 seconds
+  - Subsequent queries: Instant (cached)
 
 ## Comparison to Python Version
 
@@ -256,11 +292,29 @@ The server uses GitHub's public API which has rate limits:
 - **Unauthenticated**: 60 requests/hour
 - **With GitHub Token**: 5000 requests/hour
 
-For heavy use, set a GitHub personal access token:
+For heavy use or private repositories, set a GitHub personal access token:
 ```bash
 export GITHUB_TOKEN=your_token_here
-npx sentinel-analyzer-mcp
+npx sentinel-solutions-mcp
 ```
+
+### Custom Repository Configuration
+
+To analyze a custom or private repository:
+
+**Via Environment Variables:**
+```bash
+export SENTINEL_REPO_OWNER=MyOrganization
+export SENTINEL_REPO_NAME=PrivateSentinelRepo
+export SENTINEL_REPO_BRANCH=main
+export SENTINEL_SOLUTIONS_PATH=CustomSolutions
+export GITHUB_TOKEN=your_token_here  # Required for private repos
+
+npx sentinel-solutions-mcp
+```
+
+**Via Tool Parameters:**
+Use the repository configuration parameters directly in your MCP tool calls (see `analyze_solutions` documentation above).
 
 ### Analysis Takes Too Long
 
@@ -296,7 +350,7 @@ npm run dev
 
 ## Contributing
 
-Contributions welcome! This project maintains feature parity with the Azure Sentinel Solutions Analyzer Python tool while adding MCP integration.
+Contributions welcome! This project maintains feature parity with the Microsoft Sentinel Solutions Analyzer Python tool while adding MCP integration.
 
 ## License
 
@@ -304,9 +358,9 @@ MIT
 
 ## Credits
 
-Based on the Azure Sentinel Solutions Analyzer Python tool from the [Azure-Sentinel](https://github.com/Azure/Azure-Sentinel) repository.
+Based on the Microsoft Sentinel Solutions Analyzer Python tool from the [Azure-Sentinel](https://github.com/Azure/Azure-Sentinel) repository.
 
 ## Related Projects
 
-- [Azure Sentinel](https://github.com/Azure/Azure-Sentinel) - Official Azure Sentinel repository
+- [Microsoft Sentinel](https://github.com/Azure/Azure-Sentinel) - Official Microsoft Sentinel repository
 - [Model Context Protocol](https://modelcontextprotocol.io/) - MCP specification
