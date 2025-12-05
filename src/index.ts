@@ -9,8 +9,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
-import { allTools } from './tools/index.js';
+import { allTools, toolSchemas } from './tools/index.js';
 
 // Create MCP server
 const server = new Server(
@@ -31,9 +30,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: allTools.map((tool) => ({
       name: tool.name,
       description: tool.description,
-      inputSchema: zodToJsonSchema(tool.inputSchema as any, {
-        $refStrategy: 'none',
-      }) as any,
+      inputSchema: toolSchemas[tool.name],
     })),
   };
 });

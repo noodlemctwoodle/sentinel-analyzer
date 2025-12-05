@@ -377,3 +377,81 @@ export const allTools = [
   listTablesTool,
   validateConnectorTool,
 ];
+
+// Manual JSON schemas for MCP (zodToJsonSchema has compatibility issues)
+export const toolSchemas: Record<string, any> = {
+  analyze_solutions: {
+    type: 'object',
+    properties: {
+      force_refresh: {
+        type: 'boolean',
+        description: 'Force re-clone repository and refresh analysis',
+      },
+      output_format: {
+        type: 'string',
+        enum: ['json', 'csv', 'summary'],
+        default: 'json',
+        description: 'Output format for results',
+      },
+    },
+  },
+  get_connector_tables: {
+    type: 'object',
+    properties: {
+      connector_id: {
+        type: 'string',
+        description: 'The connector ID to look up',
+      },
+    },
+    required: ['connector_id'],
+  },
+  search_solutions: {
+    type: 'object',
+    properties: {
+      query: {
+        type: 'string',
+        description: 'Search query',
+      },
+      publisher: {
+        type: 'string',
+        description: 'Filter by publisher',
+      },
+      support_tier: {
+        type: 'string',
+        description: 'Filter by support tier',
+      },
+    },
+    required: ['query'],
+  },
+  get_solution_details: {
+    type: 'object',
+    properties: {
+      solution_name: {
+        type: 'string',
+        description: 'The solution name',
+      },
+    },
+    required: ['solution_name'],
+  },
+  list_tables: {
+    type: 'object',
+    properties: {
+      table_type: {
+        type: 'string',
+        enum: ['all', 'custom', 'standard'],
+        default: 'all',
+        description: 'Filter by table type',
+      },
+    },
+  },
+  validate_connector: {
+    type: 'object',
+    properties: {
+      connector_json: {
+        type: 'string',
+        description: 'Connector JSON content to validate',
+      },
+    },
+    required: ['connector_json'],
+  },
+};
