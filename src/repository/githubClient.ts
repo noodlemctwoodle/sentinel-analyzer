@@ -40,7 +40,7 @@ export class GitHubClient {
         throw new Error(`Failed to fetch commit: ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const data = await response.json() as { sha: string };
       return data.sha;
     } catch (error) {
       console.error('Warning: Failed to get latest commit SHA:', error);
@@ -90,7 +90,7 @@ export class GitHubClient {
         throw new Error(`Failed to list ${path}: ${response.statusText}`);
       }
 
-      const items = await response.json();
+      const items = await response.json() as GitHubTreeItem[];
       this.cache.set(cacheKey, items);
       return items;
     } catch (error) {
@@ -107,7 +107,7 @@ export class GitHubClient {
       const commitSha = await this.getLatestCommitSha();
       const commitUrl = `${GITHUB_API_BASE}/repos/${REPO_OWNER}/${REPO_NAME}/git/commits/${commitSha}`;
       const commitResponse = await fetch(commitUrl);
-      const commitData = await commitResponse.json();
+      const commitData = await commitResponse.json() as { tree: { sha: string } };
       treeSha = commitData.tree.sha;
     }
 
@@ -119,7 +119,7 @@ export class GitHubClient {
         throw new Error(`Failed to fetch tree: ${response.statusText}`);
       }
 
-      return await response.json();
+      return await response.json() as GitHubTree;
     } catch (error) {
       throw new Error(`Error fetching tree: ${error}`);
     }
