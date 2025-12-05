@@ -120,9 +120,23 @@ export class GitHubClient {
     // If no treeSha provided, get it from the latest commit
     if (!treeSha) {
       const commitSha = await this.getLatestCommitSha();
+      if (commitSha === 'unknown') {
+        throw new Error('Unable to get latest commit SHA');
+      }
+
       const commitUrl = `${GITHUB_API_BASE}/repos/${this.config.owner}/${this.config.name}/git/commits/${commitSha}`;
       const commitResponse = await fetch(commitUrl);
+
+      if (!commitResponse.ok) {
+        throw new Error(`Failed to fetch commit: ${commitResponse.statusText}`);
+      }
+
       const commitData = (await commitResponse.json()) as { tree: { sha: string } };
+
+      if (!commitData.tree || !commitData.tree.sha) {
+        throw new Error('Invalid commit response: missing tree.sha');
+      }
+
       treeSha = commitData.tree.sha;
     }
 

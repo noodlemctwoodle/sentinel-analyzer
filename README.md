@@ -26,20 +26,20 @@ npm install -g sentinel-solutions-mcp
 
 ## Features
 
-### Multi-Repository Support 🌐
+### Multi-Repository Support
 Query any GitHub repository containing Sentinel solutions, not just the official Azure repo. Perfect for:
 - **Private/Custom Solutions**: Analyze your organization's private Sentinel repository
 - **Forked Repositories**: Test changes in your fork before contributing
 - **Testing Environments**: Analyze development or staging branches
 - **Community Solutions**: Explore third-party Sentinel solution repositories
 
-### Performance Optimizations ⚡
+### Performance Optimizations
 - **Pre-built Index**: Ships with pre-built analysis for instant startup (< 1 second first query)
 - **Direct GitHub Access**: Uses GitHub API - no cloning or downloads required!
 - **Zero Setup**: Works immediately, no git repository cloning or storage needed
 - **Always Current**: Accesses latest data directly from GitHub
 
-### Comprehensive Analysis 🔍
+### Comprehensive Analysis
 - **Full Content Hub Coverage**: Analyzes all solutions in the Microsoft Sentinel Content Hub
 - **6 Detection Methods**: Implements all table detection strategies from the original Python tool:
   - graphQueries.{index}.baseQuery
@@ -308,15 +308,15 @@ src/
 
 This TypeScript implementation provides:
 
-✅ **Feature Parity**: All 6 detection methods implemented
-✅ **Same Logic**: Matching parsing and resolution algorithms
-✅ **MCP Integration**: Exposed via Model Context Protocol for AI agents
-✅ **Multi-Repository**: Analyze any GitHub repo, not just official Azure repo
-✅ **Pre-built Index**: Instant startup (< 1s) vs. full analysis every time
-✅ **GitHub API Access**: No cloning, no storage, instant start
-✅ **Better Distribution**: Runnable via npx, no Python or Git dependency
-✅ **Type Safety**: Full TypeScript type definitions
-✅ **Auto-updates**: Weekly index refresh via GitHub Actions
+- **Feature Parity**: All 6 detection methods implemented
+- **Same Logic**: Matching parsing and resolution algorithms
+- **MCP Integration**: Exposed via Model Context Protocol for AI agents
+- **Multi-Repository**: Analyze any GitHub repo, not just official Azure repo
+- **Pre-built Index**: Instant startup (< 1s) vs. full analysis every time
+- **GitHub API Access**: No cloning, no storage, instant start
+- **Better Distribution**: Runnable via npx, no Python or Git dependency
+- **Type Safety**: Full TypeScript type definitions
+- **Auto-updates**: Weekly index refresh via GitHub Actions
 
 ## Troubleshooting
 

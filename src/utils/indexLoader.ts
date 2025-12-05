@@ -27,7 +27,7 @@ export function loadPreBuiltIndex(): AnalysisResult | null {
     const indexData = fs.readFileSync(indexPath, 'utf-8');
     const result = JSON.parse(indexData) as AnalysisResult;
 
-    console.error('✅ Loaded pre-built index from', result.metadata.preBuiltAt);
+    console.error('Loaded pre-built index from', result.metadata.preBuiltAt);
     console.error(
       `   ${result.metadata.totalSolutions} solutions, ${result.metadata.totalConnectors} connectors, ${result.metadata.totalTables} tables`
     );

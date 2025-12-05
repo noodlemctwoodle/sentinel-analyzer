@@ -14,13 +14,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function buildIndex() {
-  console.log('🔍 Building pre-built index...');
+  console.log('Building pre-built index...');
 
   try {
     const github = new GitHubClient();
     const analyzer = new SolutionAnalyzer(github);
 
-    console.log('📊 Analyzing all Microsoft Sentinel solutions...');
+    console.log('Analyzing all Microsoft Sentinel solutions...');
     const result = await analyzer.analyze();
 
     // Add build metadata
@@ -43,7 +43,7 @@ async function buildIndex() {
     const outputPath = path.join(distDir, 'pre-built-index.json');
     fs.writeFileSync(outputPath, JSON.stringify(indexData, null, 2));
 
-    console.log('✅ Pre-built index created successfully');
+    console.log('Pre-built index created successfully');
     console.log(`   - Solutions: ${result.metadata.totalSolutions}`);
     console.log(`   - Connectors: ${result.metadata.totalConnectors}`);
     console.log(`   - Tables: ${result.metadata.totalTables}`);
@@ -51,7 +51,7 @@ async function buildIndex() {
     console.log(`   - Location: ${outputPath}`);
     console.log(`   - Size: ${(fs.statSync(outputPath).size / 1024).toFixed(2)} KB`);
   } catch (error) {
-    console.error('❌ Failed to build index:', error);
+    console.error('ERROR: Failed to build index:', error);
     process.exit(1);
   }
 }

@@ -83,7 +83,7 @@ export const analyzeSolutionsTool = {
         // Check if index is stale (>7 days old)
         if (isIndexStale(preBuiltIndex)) {
           console.error(
-            '⚠️  Pre-built index is stale (>7 days). Use force_refresh: true for latest data.'
+            'WARNING: Pre-built index is stale (>7 days). Use force_refresh: true for latest data.'
           );
         }
 
@@ -93,7 +93,7 @@ export const analyzeSolutionsTool = {
     }
 
     // Run fresh analysis using GitHub API
-    console.error('🔍 Running fresh analysis from GitHub...');
+    console.error('Running fresh analysis from GitHub...');
     const github = new (await import('../repository/githubClient.js')).GitHubClient(
       repoConfig
     );
