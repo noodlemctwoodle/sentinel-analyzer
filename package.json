@@ -28,12 +28,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/sentinel-analyzer-mcp.git"
+    "url": "https://github.com/noodlemctwoodle/sentinel-analyzer.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/sentinel-analyzer-mcp/issues"
+    "url": "https://github.com/noodlemctwoodle/sentinel-analyzer/issues"
   },
-  "homepage": "https://github.com/yourusername/sentinel-analyzer-mcp#readme",
+  "homepage": "https://github.com/noodlemctwoodle/sentinel-analyzer#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.24.3",
     "csv-writer": "^1.6.0",
