@@ -42,8 +42,8 @@ export class GitHubClient {
   /**
    * Get fetch headers with optional authentication
    */
-  private getFetchHeaders(): HeadersInit {
-    const headers: HeadersInit = {
+  private getFetchHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
     };
 
